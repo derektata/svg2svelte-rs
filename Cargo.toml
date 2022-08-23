@@ -1,0 +1,11 @@
+[package]
+name = "svg2svelte"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+owo-colors = "3.4.0"
+regex = "1.6.0"
+sedregex = "0.2.5"
