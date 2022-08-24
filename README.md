@@ -18,11 +18,16 @@ pnpm add -g svgo        # pnpm
 
 ## Installation
 
+build from source
 ```bash
-# build from source
 git clone https://github.com/derektata/svg2svelte-rs
 cd svg2svelte-rs
 make
+```
+
+using cargo
+```bash
+cargo install svg2svelte
 ```
 
 ## Usage
