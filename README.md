@@ -1,6 +1,6 @@
 # svg2svelte-rs
 
-easily turn a svg file into a [svelte] component, rewritten in rust
+Easily turn an SVG file into a Svelte component, Rewritten in Rust.
 
 ## How it works
 
@@ -19,10 +19,24 @@ pnpm add -g svgo        # pnpm
 ## Installation
 
 ```bash
+# build from source
 git clone https://github.com/derektata/svg2svelte-rs
 cd svg2svelte-rs
 make
 ```
+
+## Usage
+```bash
+Usage: svg2svelte <svg_file> <flag>
+
+Flags:
+    --ts    # typescript file
+
+Examples:
+    svg2svelte ball.svg
+    svg2svelte logo.svg --ts
+```
+> NOTE: For Typescript components, The `--ts` flag needs to be positioned after the svg file. Otherwise a regular Javascript component will be generated.
 
 ## Why?
 
