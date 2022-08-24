@@ -10,17 +10,20 @@ pub mod svg_file {
 
     fn create_backup(file: &str) -> Result<(), String> {
         let backup_file = format!("{}.bak", file);
-        std::fs::copy(file, backup_file).expect("Something went wrong creating the backup file");
+        std::fs::copy(file, &backup_file)
+            .expect(&format!("Something went wrong creating {}", backup_file).to_string());
         Ok(())
     }
 
     fn read(file: &str) -> String {
-        std::fs::read_to_string(file).expect("Something went wrong reading the file...")
+        std::fs::read_to_string(file)
+            .expect(&format!("Something went wrong reading {}...", file).to_string())
     }
 
     fn save_data(name: String, data: String) -> std::io::Result<()> {
-        let mut file = File::create(name).unwrap();
-        file.write_all(data.as_bytes()).unwrap();
+        let mut file = File::create(&name).unwrap();
+        file.write_all(data.as_bytes())
+            .expect(&format!("Something went wrong saving {}", name).to_string());
         Ok(())
     }
 
@@ -115,7 +118,7 @@ pub mod svg_file {
         Ok(())
     }
 
-    pub fn process(file: &str, script_type: bool) {
+    pub fn process(file: &str, script_type: bool, verbose: bool) {
         let backup = format!("{}.bak", file);
         let script_type = match_script_type(script_type);
         let filename = basename(file);
@@ -131,10 +134,9 @@ pub mod svg_file {
         // change all instances of id="bind: -> class="bind:
         let replaced_ids = ids_to_classes(&contents);
         // save the data to the backup
-        save_data(backup.to_string(), replaced_ids.to_string())
-            .expect("Something went wrong saving the backup file");
+        save_data(backup.to_string(), replaced_ids.to_string()).unwrap();
         // optimize the svg file
-        run_svgo(&backup.to_string()).expect("Something went wrong running svgo");
+        run_svgo(&backup.to_string()).unwrap();
         // read the optimized file
         let new_contents = read(&backup);
         // find all instances of class="bind:{}" to get the binds
@@ -146,13 +148,13 @@ pub mod svg_file {
         // format the data for the svelte file
         let data = format!("{}{}", script_tag, svelte_binds);
         // now that we have all the data rounded up, we create the svelte component
-        make_component(filename, data).expect("Something went wrong creating the svelte component");
-
+        make_component(filename, data).unwrap();
         // remove the backup file
-        std::fs::remove_file(backup).expect("Something went wrong removing the backup file");
-
-        // print the results to the console so we can see what was done
-        println!("{}", script_tag);
-        println!("{}", svelte_binds);
+        std::fs::remove_file(backup).unwrap();
+        // if verbose is true, we print the generated component to stdout
+        if verbose {
+            println!("{}", script_tag);
+            println!("{}", svelte_binds);
+        }
     }
 }

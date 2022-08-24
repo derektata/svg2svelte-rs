@@ -41,6 +41,7 @@ ARGS:
 OPTIONS:
     -h, --help          Print help information
     -t, --typescript    Create a Typescript component
+    -v, --verbose       Print the generated component to stdout
     -V, --version       Print version information
 
 EXAMPLES:
