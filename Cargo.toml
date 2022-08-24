@@ -1,7 +1,7 @@
 [package]
 name = "svg2svelte"
 description = "Easily turn an SVG file into a Svelte component, Rewritten in Rust."
-version = "0.1.1"
+version = "0.2.0"
 edition = "2021"
 author = "Derek Tata <derekjtata@gmail.com>"
 license = "AGPL-3.0"
@@ -10,6 +10,7 @@ repository = "https://github.com/derektata/svg2svelte-rs"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+clap = { version = "3.2.17", features = ["derive"] }
 owo-colors = "3.4.0"
 regex = "1.6.0"
 sedregex = "0.2.5"
