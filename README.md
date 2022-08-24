@@ -32,16 +32,21 @@ cargo install svg2svelte
 
 ## Usage
 ```bash
-Usage: svg2svelte <svg_file> <flag>
+USAGE:
+    svg2svelte [OPTIONS] [SVG_FILE]
 
-Flags:
-    --ts    # typescript file
+ARGS:
+    <SVG_FILE>    File to be processed
 
-Examples:
+OPTIONS:
+    -h, --help          Print help information
+    -t, --typescript    Create a Typescript component
+    -V, --version       Print version information
+
+EXAMPLES:
     svg2svelte ball.svg
-    svg2svelte logo.svg --ts
+    svg2svelte -t ball.svg
 ```
-> NOTE: For Typescript components, The `--ts` flag needs to be positioned after the svg file. Otherwise a regular Javascript component will be generated.
 
 ## Why?
 
