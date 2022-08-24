@@ -1,60 +1,30 @@
-pub mod process {
-    use owo_colors::OwoColorize;
+pub mod svg_file {
     use regex::Regex;
     use sedregex::ReplaceCommand;
     use std::fs::File;
-    use std::io::prelude::*;
+    use std::io::Write;
 
-    #[derive(PartialEq)]
-    struct Bind {
-        name: String,
+    fn check_ext(path: &str) -> bool {
+        path.ends_with(".svg")
     }
 
-    impl Bind {
-        fn new(name: String) -> Self {
-            Bind { name }
-        }
-    }
-
-    pub struct Bindings {
-        binds: Vec<Bind>,
-    }
-
-    impl Bindings {
-        pub fn new() -> Self {
-            Bindings { binds: Vec::new() }
-        }
-
-        pub fn join(&self, separator: &str) -> String {
-            let mut result = String::new();
-            for bind in &self.binds {
-                // return each bind in a separated list, except for the last bind
-                if bind != &self.binds[self.binds.len() - 1] {
-                    result.push_str(&format!("{}{}", &bind.name, separator));
-                } else {
-                    result.push_str(&bind.name);
-                }
-            }
-            result
-        }
-    }
-
-    pub fn check_args(args: &[String]) -> Result<(), String> {
-        if args.len() < 2 {
-            return Err("Usage: svg2svelte <svg_file>".to_string());
-        } else if args.len() > 3 {
-            return Err(
-                format!("{} Too many arguments", " ERROR ".bold().white().on_red()).to_string(),
-            );
-        }
+    fn create_backup(file: &str) -> Result<(), String> {
+        let backup_file = format!("{}.bak", file);
+        std::fs::copy(file, backup_file).expect("Something went wrong creating the backup file");
         Ok(())
     }
 
-    pub fn check_ext(file: &str) -> bool {
-        file.ends_with(".svg")
+    fn read(file: &str) -> String {
+        std::fs::read_to_string(file).expect("Something went wrong reading the file...")
     }
 
-    pub fn get_filename(file: &str) -> String {
+    fn save_data(name: String, data: String) -> std::io::Result<()> {
+        let mut file = File::create(name).unwrap();
+        file.write_all(data.as_bytes()).unwrap();
+        Ok(())
+    }
+
+    fn basename(file: &str) -> String {
         let mut filename = String::new();
         let parent_dir = file.split('/').last().unwrap();
         let name = parent_dir.split('.').next().unwrap();
@@ -69,67 +39,32 @@ pub mod process {
         filename
     }
 
-    pub fn read_file(file: &str) -> String {
-        std::fs::read_to_string(file).expect(
-            &format!(
-                "{} Something went wrong reading the file...",
-                " ERROR ".bold().white().on_red()
-            )
-            .to_string(),
-        )
-    }
-
-    pub fn create_backup(file: &str) -> Result<(), String> {
-        let backup_file = format!("{}.bak", file);
-        std::fs::copy(file, backup_file).expect(
-            &format!(
-                "{} Something went wrong creating the backup file...",
-                " ERROR ".bold().white().on_red()
-            )
-            .to_string(),
-        );
-        Ok(())
-    }
-
-    pub fn save_data(name: String, data: String) -> std::io::Result<()> {
-        let mut file = File::create(name).unwrap();
-        file.write_all(data.as_bytes()).unwrap();
-        Ok(())
-    }
-
-    pub fn parse_binds(contents: &str) -> Bindings {
-        let mut found = Bindings::new();
+    fn parse_binds(contents: &str) -> Vec<String> {
+        let mut binds = Vec::new();
         for class in contents.lines() {
             if class.contains("class=\"bind:") {
                 let mut bind = class.split("class=\"bind:").nth(1).unwrap();
                 bind = bind.split("\"").nth(0).unwrap();
-                found.binds.push(Bind::new(bind.to_string()));
+                binds.push(bind.to_string());
             }
         }
-        Bindings { binds: found.binds }
+        binds
     }
 
-    pub fn match_script_type(lang: String) -> String {
+    fn match_script_type(lang: bool) -> String {
         let mut script_type = String::new();
-        match lang.as_str() {
-            "--ts" => {
+        match lang {
+            true => {
                 script_type.push_str("--ts");
             }
-            "" => {
+            false => {
                 script_type.push_str("");
-            }
-            _ => {
-                println!(
-                    "{} I think you meant to use \"--ts\"",
-                    " ERROR ".bold().white().on_red(),
-                );
-                std::process::exit(1);
             }
         }
         script_type
     }
 
-    pub fn make_script_tag(bindings: Bindings, lang: String) -> String {
+    fn make_script_tag(bindings: Vec<String>, lang: String) -> String {
         let mut script = String::new();
         match lang.as_ref() {
             "--ts" => {
@@ -148,30 +83,24 @@ pub mod process {
         script
     }
 
-    pub fn ids_to_classes(contents: &str) -> String {
+    fn ids_to_classes(contents: &str) -> String {
         let replaced = ReplaceCommand::new("s/id=\"bind:/class=\"bind:/g")
             .unwrap()
             .execute(contents);
         replaced.to_string()
     }
 
-    pub fn run_svgo(file: &str) -> Result<(), String> {
+    fn run_svgo(file: &str) -> Result<(), String> {
         let mut svgo = std::process::Command::new("svgo");
         svgo.arg(&file.to_string());
         svgo.arg("-o");
         svgo.arg(file);
         svgo.arg("--pretty");
-        svgo.output().expect(
-            &format!(
-                "{} Something went wrong running svgo...",
-                " ERROR ".bold().white().on_red()
-            )
-            .to_string(),
-        );
+        svgo.output().expect("Something went wrong running svgo...");
         Ok(())
     }
 
-    pub fn make_svelte_binds(contents: String) -> String {
+    fn make_svelte_binds(contents: String) -> String {
         let re = Regex::new(r#"class="bind:(.*?)""#).unwrap();
         let replaced = re.replace_all(&contents, |caps: &regex::Captures| {
             let id = caps.get(1).unwrap().as_str();
@@ -180,9 +109,50 @@ pub mod process {
         replaced.to_string()
     }
 
-    pub fn make_component(name: String, contents: String) -> std::io::Result<()> {
+    fn make_component(name: String, contents: String) -> std::io::Result<()> {
         let mut file = File::create(&format!("{}.svelte", name)).unwrap();
         file.write_all(contents.as_bytes()).unwrap();
         Ok(())
+    }
+
+    pub fn process(file: &str, script_type: bool) {
+        let backup = format!("{}.bak", file);
+        let script_type = match_script_type(script_type);
+        let filename = basename(file);
+        // we check the extension of the file first,
+        // so we can determine if the file is an svg or not
+        if check_ext(file) == false {
+            println!("Please provide an SVG file");
+            std::process::exit(1);
+        }
+        // here we create a backup of the file so we don't destroy the original
+        create_backup(file).unwrap();
+        let contents = read(&backup);
+        // change all instances of id="bind: -> class="bind:
+        let replaced_ids = ids_to_classes(&contents);
+        // save the data to the backup
+        save_data(backup.to_string(), replaced_ids.to_string())
+            .expect("Something went wrong saving the backup file");
+        // optimize the svg file
+        run_svgo(&backup.to_string()).expect("Something went wrong running svgo");
+        // read the optimized file
+        let new_contents = read(&backup);
+        // find all instances of class="bind:{}" to get the binds
+        let parsed = parse_binds(&replaced_ids);
+        // create the script tag for the svelte file
+        let script_tag = make_script_tag(parsed, script_type);
+        // create the svelte bindings we'll use to animate later
+        let svelte_binds = make_svelte_binds(new_contents);
+        // format the data for the svelte file
+        let data = format!("{}{}", script_tag, svelte_binds);
+        // now that we have all the data rounded up, we create the svelte component
+        make_component(filename, data).expect("Something went wrong creating the svelte component");
+
+        // remove the backup file
+        std::fs::remove_file(backup).expect("Something went wrong removing the backup file");
+
+        // print the results to the console so we can see what was done
+        println!("{}", script_tag);
+        println!("{}", svelte_binds);
     }
 }
