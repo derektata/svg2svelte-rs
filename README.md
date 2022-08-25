@@ -1,6 +1,11 @@
 # svg2svelte-rs
 
+<section align="center">
+<img src="./examples/svg2svelte.svg" alt="svg2svlete" width="700">
+<br/>
+<br/>
 Easily turn an SVG file into a Svelte component, Rewritten in Rust.
+</section>
 
 ## How it works
 
