@@ -67,13 +67,14 @@ pub mod svg_file {
         script_type
     }
 
-    fn make_script_tag(bindings: Vec<String>, lang: String) -> String {
+    fn make_script_tag(bindings: &mut Vec<String>, lang: String) -> String {
         let mut script = String::new();
+        let typed_binds = add_types(bindings.to_vec());
         match lang.as_ref() {
             "--ts" => {
                 script.push_str(&format!(
                     "<script lang=\"ts\">\n\tlet {};\n</script>\n\n",
-                    bindings.join(", ")
+                    typed_binds
                 ));
             }
             _ => {
@@ -85,6 +86,18 @@ pub mod svg_file {
         }
         script
     }
+
+    fn add_types(bindings: Vec<String>) -> String {
+        let mut types = Vec::new();
+        for binding in bindings {
+            let mut type_name = String::new();
+            type_name.push_str(&binding);
+            type_name.push_str(": any");
+            types.push(type_name);
+        }
+        types.join(", ")
+    }
+
 
     fn ids_to_classes(contents: &str) -> String {
         let replaced = ReplaceCommand::new("s/id=\"bind:/class=\"bind:/g")
@@ -140,9 +153,9 @@ pub mod svg_file {
         // read the optimized file
         let new_contents = read(&backup);
         // find all instances of class="bind:{}" to get the binds
-        let parsed = parse_binds(&replaced_ids);
+        let mut parsed = parse_binds(&replaced_ids);
         // create the script tag for the svelte file
-        let script_tag = make_script_tag(parsed, script_type);
+        let script_tag = make_script_tag(&mut parsed, script_type);
         // create the svelte bindings we'll use to animate later
         let svelte_binds = make_svelte_binds(new_contents);
         // format the data for the svelte file
