@@ -54,6 +54,9 @@ EXAMPLES:
     svg2svelte -t ball.svg
 ```
 
+## Screenshot
+<img src="https://user-images.githubusercontent.com/63433989/190179524-4924ac11-d98f-49e7-aea1-49a41b53b60d.png" alt="output" width="700">
+
 ## Why?
 
 The previous implementation I had written up in shell had issues running cross-platform and only worked on Linux, so I decided to start learning more Rust and this project was born.
