@@ -1,42 +1,38 @@
+
 # svg2svelte-rs
+![Logo](https://user-images.githubusercontent.com/63433989/190178451-42bdd0fe-7d0d-4303-92ad-724121769d44.svg)
 
-<section align="center">
-<img src="https://user-images.githubusercontent.com/63433989/190178451-42bdd0fe-7d0d-4303-92ad-724121769d44.svg" alt="svg2svelte" width="700">
-<br/>
-<br/>
 Easily turn an SVG file into a Svelte component, Rewritten in Rust.
-</section>
+## How It Works
 
-## How it works
+**svg2svelte** parses the svg file's ids for **`bind:`** in the name and converts them into variables we can manipulate later on with an animation library (e.g. [anime.js])
 
-`svg2svelte` parses the svg file's ids for `bind:` in the name and converts them into variables we can manipulate later on with an animation library (e.g. [anime.js])
-
+[anime.js]: https://animejs.com/
 ## Dependencies
 
-+ `svgo` will need to be installed globally
++ `svgo` will need to be installed globally.
 
 ```bash
 npm i -g svgo           # npm
 yarn global add svgo    # yarn
 pnpm add -g svgo        # pnpm
 ```
-
 ## Installation
 
-build from source
+### Build from source
 ```bash
 git clone https://github.com/derektata/svg2svelte-rs
 cd svg2svelte-rs
 make
 ```
 
-using cargo
+### Using Cargo
 ```bash
 cargo install svg2svelte
 ```
+## Usage/Examples
 
-## Usage
-```bash
+```plaintext
 USAGE:
     svg2svelte [OPTIONS] [SVG_FILE]
 
@@ -54,12 +50,19 @@ EXAMPLES:
     svg2svelte -t ball.svg
 ```
 
-## Screenshot
-<img src="https://user-images.githubusercontent.com/63433989/190179524-4924ac11-d98f-49e7-aea1-49a41b53b60d.png" alt="output" width="700">
 
+## Screenshot
+
+![screenshot](https://user-images.githubusercontent.com/63433989/190179524-4924ac11-d98f-49e7-aea1-49a41b53b60d.png)
 ## Why?
 
 The previous implementation I had written up in shell had issues running cross-platform and only worked on Linux, so I decided to start learning more Rust and this project was born.
+## License
 
-[svelte]:https://svelte.dev/
-[anime.js]:https://animejs.com/
+[AGPL-3.0 License](https://github.com/derektata/svg2svelte-rs/blob/main/LICENSE)
+
+
+## Author
+
+[Derek Tata](https://www.github.com/derektata)
+
