@@ -1,24 +1,24 @@
+// src/main.rs
 use clap::Parser;
-use svg2svelte::svg_file::process;
+use std::path::PathBuf;
+use svg2svelte::Processor;
 
-/// Easily convert an SVG file into a Svelte Component, Rewritten in Rust
 #[derive(Parser)]
-#[clap(author, version, about, long_about = None)]
+#[clap(author, version, about)]
 struct Cli {
-    /// File to be processed
-    svg_file: Option<String>,
+    svg_file: PathBuf,
 
-    /// Create a Typescript component
     #[clap(short, long)]
     typescript: bool,
 
-    /// Print the generated component to stdout
     #[clap(short, long)]
     verbose: bool,
 }
 
-fn main() {
+fn main() -> std::io::Result<()> {
     let cli = Cli::parse();
-    let svg_file = cli.svg_file.unwrap();
-    process(&svg_file, cli.typescript, cli.verbose);
+    Processor::new(cli.svg_file)
+        .typescript(cli.typescript)
+        .verbose(cli.verbose)
+        .run()
 }
